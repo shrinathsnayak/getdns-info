@@ -1,16 +1,11 @@
-import express from 'express'
 import dotenv from 'dotenv'
-import { setupRoutes } from '#routes/index.route.js'
-import { setupMiddlewares } from '#middlewares/setupMiddlewares.js'
+import createServer from '#server.js'
+import { setupCluster } from '#utils/cluster.utils.js'
 
 dotenv.config()
 
-const app = express()
-const port = process.env.PORT ?? '9001'
-
-setupMiddlewares(app)
-setupRoutes(app)
-
-app.listen(port, () => {
-  console.log(`App listening on port ${port}`)
-})
+if (process.env.NODE_ENV === 'production') {
+  setupCluster(createServer)
+} else {
+  createServer()
+}

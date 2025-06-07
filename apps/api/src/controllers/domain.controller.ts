@@ -332,7 +332,7 @@ export const getSslCertificateInfo = async (domain: string) => {
  * there is an error during the request, it throws an error with the message 'Failed to fetch HTTP
  * headers'.
  */
-export const getHttpHeaders = async (domain: string) => {
+export const getHttpHeaders = async (domain: string): Promise<Record<string, any>> => {
   try {
     const response = await axios.head(`https://${domain}`)
     return response.headers
