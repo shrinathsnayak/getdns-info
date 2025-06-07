@@ -1,6 +1,6 @@
 // Description: Domain-related routes for handling various DNS and domain information requests.
 
-import { Router, Request, Response } from 'express'
+import { Router, Request, Response, Router as ExpressRouter } from 'express'
 import { sendError, sendSuccess } from '#utils/response.js'
 import { domainQueryMiddleware } from '#middlewares/domainQueryMiddleware.js'
 import {
@@ -27,7 +27,7 @@ import {
   getDomainAge,
 } from '#controllers/domain.controller.js'
 
-const domainRoute = Router()
+const domainRoute: ExpressRouter = Router()
 
 // Description: Middleware to check for a domain in the request query
 domainRoute.use(domainQueryMiddleware)
