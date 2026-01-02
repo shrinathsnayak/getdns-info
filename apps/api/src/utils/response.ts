@@ -18,7 +18,7 @@ import { Response } from 'express'
 export function sendSuccess<T>(res: Response, data: T, message?: string): void {
   res.status(200).json({
     success: true,
-    scanDate: new Date().toISOString(),
+    scanDate: new Date().toDateString(),
     data,
     ...(message && { message }),
   })

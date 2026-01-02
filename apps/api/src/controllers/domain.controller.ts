@@ -9,7 +9,6 @@ const execPromise = utils.promisify(exec)
 
 // External libraries
 import axios from 'axios'
-import puppeteer from 'puppeteer'
 
 // Internal Imports
 import { CrtShEntry } from '#types/index.js'
@@ -215,93 +214,6 @@ export const getTraceRedirects = async (domain: string) => {
 }
 
 /**
- * The function `getScreenshot` uses Puppeteer to take a screenshot of a specified domain in a headless
- * browser environment.
- * @param {string} domain - The `domain` parameter in the `getScreenshot` function is a string
- * representing the domain for which you want to capture a screenshot. It should be a valid domain name
- * (e.g., "example.com") that you want to load in a browser and take a screenshot of.
- * @returns The function `getScreenshot` returns a base64 encoded screenshot of the specified domain
- * after taking a screenshot of the webpage using Puppeteer.
- */
-export const getScreenshot = async (domain: string) => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--window-size=1280,800',
-    ],
-    defaultViewport: { width: 1280, height: 800 },
-  })
-
-  try {
-    const page = await browser.newPage()
-    await page.goto(`https://${domain}`, {
-      waitUntil: 'networkidle2',
-      timeout: 15000,
-    })
-    const screenshot = await page.screenshot({
-      encoding: 'base64',
-      type: 'jpeg',
-      quality: 70,
-    })
-    await page.close()
-    return screenshot
-  } finally {
-    await browser.close()
-    throw new Error('Failed to take screenshot')
-  }
-}
-
-/**
- * The function `getPerformanceMetrics` uses Lighthouse to analyze the performance metrics of a given
- * domain and returns the results as a Promise.
- * @param {string} domain - The `getPerformanceMetrics` function you provided is a Node.js function
- * that uses Lighthouse to gather performance metrics for a given domain. The function takes a `domain`
- * parameter, which is a string representing the domain for which you want to measure performance
- * metrics.
- * @returns The `getPerformanceMetrics` function returns a Promise that resolves with the performance
- * metrics obtained from running Lighthouse on the specified domain. The performance metrics are parsed
- * from the JSON output of Lighthouse and returned as an object. If there are any errors during the
- * Lighthouse execution or parsing of the output, the function will return `null`.
- */
-export const getPerformanceMetrics = (domain: string) => {
-  return new Promise((resolve) => {
-    exec(
-      `npx lighthouse https://${domain} --quiet --output=json --output-path=stdout --chrome-flags="--headless --no-sandbox --disable-gpu"`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.error('Lighthouse error:', error)
-          console.error('Lighthouse stderr:', stderr)
-          return resolve(null)
-        }
-        if (!stdout) {
-          console.error('Lighthouse produced no output.')
-          console.error('Lighthouse stderr:', stderr)
-          return resolve(null)
-        }
-
-        const firstBrace = stdout.indexOf('{')
-        const lastBrace = stdout.lastIndexOf('}')
-        if (firstBrace === -1 || lastBrace === -1) return resolve(null)
-
-        const jsonString = stdout.slice(firstBrace, lastBrace + 1)
-
-        try {
-          const result = JSON.parse(jsonString)
-          resolve(result)
-        } catch (e) {
-          console.error('Error parsing Lighthouse output:', e)
-          resolve(null)
-        }
-      }
-    )
-  })
-}
-
-/**
  * The function `getSslCertificateInfo` fetches the SSL certificate information for a given domain
  * using a TLS connection.
  * @param {string} domain - The `domain` parameter is a string representing the domain name for which
@@ -379,40 +291,6 @@ export const getSecurityHeaders = async (domain: string) => {
 }
 
 /**
- * The function `getRobotsInfo` asynchronously fetches and returns the content of the robots.txt file
- * for a specified domain using Axios in TypeScript.
- * @param {string} domain - The `domain` parameter in the `getRobotsInfo` function is a string that
- * represents the domain name from which the robots.txt file will be fetched.
- * @returns The function `getRobotsInfo` is returning the content of the `robots.txt` file fetched from
- * the specified domain.
- */
-export const getRobotsInfo = async (domain: string) => {
-  try {
-    const { data } = await axios.get(`https://${domain}/robots.txt`)
-    return data
-  } catch {
-    throw new Error('Failed to fetch robots.txt')
-  }
-}
-
-/**
- * The function `getSitemapInfo` fetches the sitemap.xml file from a specified domain using axios in
- * TypeScript.
- * @param {string} domain - The `domain` parameter in the `getSitemapInfo` function is a string
- * representing the domain for which you want to fetch the sitemap information.
- * @returns The function `getSitemapInfo` is returning the data fetched from the sitemap.xml file of
- * the specified domain.
- */
-export const getSitemapInfo = async (domain: string) => {
-  try {
-    const { data } = await axios.get(`https://${domain}/sitemap.xml`)
-    return data
-  } catch {
-    throw new Error('Failed to fetch sitemap.xml')
-  }
-}
-
-/**
  * The function `getSubdomains` fetches subdomains for a given domain using the crt.sh API.
  * @param {string} domain - The `getSubdomains` function takes a `domain` parameter as input. This
  * parameter should be a string representing the domain for which you want to retrieve subdomains. For
@@ -468,6 +346,7 @@ export const getDomainAge = async (domain: string) => {
     const { stdout } = await execPromise(
       `whois ${domain} | grep -i "Creation Date"`
     )
+    console.log('stdout', stdout)
     return getDomainAgeFromWhoIs(stdout)
   } catch {
     throw new Error('domain age lookup failed')

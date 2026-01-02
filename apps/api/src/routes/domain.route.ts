@@ -12,16 +12,12 @@ import {
   getNSRecord,
   getSOARecord,
   getTraceRedirects,
-  getScreenshot,
-  getPerformanceMetrics,
   getSslCertificateInfo,
   getHttpHeaders,
   getSecurityHeaders,
   getSPFRecord,
   getDKIMRecord,
   getDMARCRecord,
-  getRobotsInfo,
-  getSitemapInfo,
   getSubdomains,
   getWhoisInfo,
   getDomainAge,
@@ -118,27 +114,6 @@ domainRoute.get('/redirects', async (req: Request, res: Response) => {
   }
 })
 
-domainRoute.get('/screenshot', async (req: Request, res: Response) => {
-  const domain = (req as any).domain
-  try {
-    const response = await getScreenshot(domain)
-    sendSuccess(res, { domain, response })
-  } catch (error) {
-    sendError(res, 'Failed to take screenshot', 500)
-  }
-})
-
-domainRoute.get('/performance', async (req: Request, res: Response) => {
-  const domain = (req as any).domain
-
-  try {
-    const response = await getPerformanceMetrics(domain)
-    sendSuccess(res, { domain, response })
-  } catch (error) {
-    sendError(res, 'Failed to retrieve performance metrics', 500)
-  }
-})
-
 domainRoute.get('/ssl', async (req: Request, res: Response) => {
   const domain = (req as any).domain
 
@@ -202,28 +177,6 @@ domainRoute.get('/dmarc', async (req: Request, res: Response) => {
     sendSuccess(res, { domain, response })
   } catch (error) {
     sendError(res, 'Failed to retrieve DMARC record', 500)
-  }
-})
-
-domainRoute.get('/robots', async (req: Request, res: Response) => {
-  const domain = (req as any).domain
-
-  try {
-    const response = await getRobotsInfo(domain)
-    sendSuccess(res, { domain, response })
-  } catch (error) {
-    sendError(res, 'Failed to retrieve robots.txt', 500)
-  }
-})
-
-domainRoute.get('/sitemap', async (req: Request, res: Response) => {
-  const domain = (req as any).domain
-
-  try {
-    const response = await getSitemapInfo(domain)
-    sendSuccess(res, { domain, response })
-  } catch (error) {
-    sendError(res, 'Failed to retrieve sitemap.xml', 500)
   }
 })
 

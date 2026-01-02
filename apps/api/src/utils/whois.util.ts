@@ -19,7 +19,7 @@ export const parseWhois = (raw: string): Record<string, string | string[]> => {
       if (key && value) {
         if (result[key]) {
           if (Array.isArray(result[key])) {
-            ;(result[key] as string[]).push(value)
+            ; (result[key] as string[]).push(value)
           } else {
             result[key] = [result[key] as string, value]
           }
